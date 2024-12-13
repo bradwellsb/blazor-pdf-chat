@@ -15,71 +15,39 @@
 <PageTitle>Document Chat</PageTitle>
 <div class="container">
     <h1>Document Chat</h1>
-
     <div class="chat-container">
         <div class="messages">
             @foreach (var message in messages)
             {
-                <div class="message @(message.IsUser ? "user-message" : message.IsFunctionCall ? "function-call-message" : "assistant-message")">
+                <div class="mb-2 alert @(message.IsUser ? "text-end alert-success" : message.IsFunctionCall ? "text-start alert-warning" : "text-start alert-danger")">
                     <span>@(new MarkupString(Markdown.ToHtml(message.Text)))</span>
                 </div>
             }
         </div>
-        <div class="input-group mb-3 chat-input">
+        <div class="input-group mb-3">
             <input type="text" class="form-control" @bind="userMessage" placeholder="Enter your message">
             <button class="btn btn-primary" disabled=@busy @onclick="SendMessage">Send</button>
         </div>
-        <div class="pdf-loader">
-            <SfUploader ID="FilesToUpload" AutoUpload="true" AllowMultiple="true" AllowedExtensions=".pdf">
-                <UploaderAsyncSettings SaveUrl="api/vectors/Vectorize"></UploaderAsyncSettings>
-                <UploaderEvents Success="UploadSuccessHandler"></UploaderEvents>
-            </SfUploader>
-        </div>
+        <SfUploader ID="FilesToUpload" AutoUpload="true" AllowMultiple="true" AllowedExtensions=".pdf">
+            <UploaderAsyncSettings SaveUrl="api/vectors/Vectorize"></UploaderAsyncSettings>
+            <UploaderEvents Success="UploadSuccessHandler"></UploaderEvents>
+        </SfUploader>
     </div>
 </div>
 
 <style>
     .chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 80vh;
+        display: flex;
+        flex-direction: column;
+        height: 80vh;
     }
 
     .messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-    }
-
-    .message {
-    margin-bottom: 10px;
-    }
-
-    .user-message {
-    text-align: right;
-    background-color: #d1e7dd;
-    padding: 10px;
-    border-radius: 10px;
-    }
-
-    .assistant-message {
-    text-align: left;
-    background-color: #f8d7da;
-    padding: 10px;
-    border-radius: 10px;
-    }
-
-    .function-call-message {
-    text-align: left;
-    background-color: #fff3cd;
-    padding: 10px;
-    border-radius: 10px;
-    }
-
-    .chat-input {
-    display: flex;
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
     }
 </style>
 
