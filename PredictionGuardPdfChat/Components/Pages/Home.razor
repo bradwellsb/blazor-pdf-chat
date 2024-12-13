@@ -1,0 +1,140 @@
+﻿@page "/"
+@using Microsoft.Extensions.VectorData
+@using PredictionGuard.Models
+@using PredictionGuard.Models.Chat
+@using PredictionGuard.Services
+@using System.Reflection
+@using System.ComponentModel
+@using Markdig;
+@using PredictionGuardPdfChat.Services
+@using Syncfusion.Blazor.Inputs
+@using System.Text
+@inject PredictionGuardChatClient PGChatClient
+@inject VectorsService VectorsService
+
+<PageTitle>Document Chat</PageTitle>
+<div class="container">
+    <h1>Document Chat</h1>
+
+    <div class="chat-container">
+        <div class="messages">
+            @foreach (var message in messages)
+            {
+                <div class="message @(message.IsUser ? "user-message" : message.IsFunctionCall ? "function-call-message" : "assistant-message")">
+                    <span>@(new MarkupString(Markdown.ToHtml(message.Text)))</span>
+                </div>
+            }
+        </div>
+        <div class="input-group mb-3 chat-input">
+            <input type="text" class="form-control" @bind="userMessage" placeholder="Enter your message">
+            <button class="btn btn-primary" disabled=@busy @onclick="SendMessage">Send</button>
+        </div>
+        <div class="pdf-loader">
+            <SfUploader ID="FilesToUpload" AutoUpload="true" AllowMultiple="true" AllowedExtensions=".pdf">
+                <UploaderAsyncSettings SaveUrl="api/vectors/Vectorize"></UploaderAsyncSettings>
+                <UploaderEvents Success="UploadSuccessHandler"></UploaderEvents>
+            </SfUploader>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+    }
+
+    .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    }
+
+    .message {
+    margin-bottom: 10px;
+    }
+
+    .user-message {
+    text-align: right;
+    background-color: #d1e7dd;
+    padding: 10px;
+    border-radius: 10px;
+    }
+
+    .assistant-message {
+    text-align: left;
+    background-color: #f8d7da;
+    padding: 10px;
+    border-radius: 10px;
+    }
+
+    .function-call-message {
+    text-align: left;
+    background-color: #fff3cd;
+    padding: 10px;
+    border-radius: 10px;
+    }
+
+    .chat-input {
+    display: flex;
+    }
+</style>
+
+@code {
+    string userMessage;
+    List<ChatMessage> messages = new();
+    bool isLoading;
+    bool fileUploaded;
+    bool busy;
+
+    async Task SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(userMessage))
+        {
+            busy = true;
+            StringBuilder augmentedMessage = new StringBuilder(userMessage);
+            if (fileUploaded)
+            {
+                var searchResult = await VectorsService.SearchAsync(userMessage);
+                
+                if (searchResult.TotalCount > 0)
+                {
+                    augmentedMessage.Clear();
+                    augmentedMessage.Append("Use this information to answer the question:\n");
+                    await foreach (var record in searchResult.Results)
+                    {
+                        augmentedMessage.Append($"Text: {record.Record.Text}\n Page number: {record.Record.PageNumber}\n Filename: {record.Record.FileName}\n");
+                    }
+                    augmentedMessage.Append("Be concise and always include filename and page number for relevant information referenced in the response.\n");
+                    augmentedMessage.Append($"Question: {userMessage}");
+                }
+            }
+            messages.Add(new ChatMessage { Text = userMessage, IsUser = true });
+            var responseMessage = new ChatMessage { Text = string.Empty, IsUser = false };
+            messages.Add(responseMessage);
+
+            await foreach (var chunk in PGChatClient.CompleteStreamingAsync(augmentedMessage.ToString()))
+            {
+                responseMessage.Text += chunk;
+                StateHasChanged();
+            }
+            userMessage = string.Empty;
+            busy = false;
+        }
+    }
+
+    private void UploadSuccessHandler(SuccessEventArgs args)
+    {
+        fileUploaded = true;
+    }
+
+    class ChatMessage
+    {
+        public string Text { get; set; }
+        public bool IsUser { get; set; }
+        public bool IsFunctionCall { get; set; }
+    }
+}
