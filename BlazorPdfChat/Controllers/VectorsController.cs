@@ -4,7 +4,7 @@ using Syncfusion.Pdf;
 using Syncfusion.Pdf.Parsing;
 using System.Text.RegularExpressions;
 
-namespace PredictionGuardPdfChat.Controllers
+namespace BlazorPdfChat.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

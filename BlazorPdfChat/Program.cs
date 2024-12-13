@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Data;
 using PredictionGuard.Extensions;
-using PredictionGuardPdfChat;
-using PredictionGuardPdfChat.Components;
-using PredictionGuardPdfChat.Services;
+using BlazorPdfChat;
+using BlazorPdfChat.Components;
+using BlazorPdfChat.Services;
 using Syncfusion.Blazor;
 
 var builder = WebApplication.CreateBuilder(args);

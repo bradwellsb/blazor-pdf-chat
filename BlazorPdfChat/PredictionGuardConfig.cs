@@ -1,4 +1,4 @@
-﻿namespace PredictionGuardPdfChat
+﻿namespace BlazorPdfChat
 {
     public class PredictionGuardConfig
     {

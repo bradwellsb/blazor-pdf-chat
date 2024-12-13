@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.VectorData;
 
-namespace PredictionGuardPdfChat.Services
+namespace BlazorPdfChat.Services
 {
     public class VectorsService
     {
