@@ -82,7 +82,9 @@ namespace BlazorPdfChat.Controllers
 
         private static string RemoveExtraWhiteSpace(string text)
         {
-            // Use Regex to replace multiple whitespace characters with a single space
+            // Replace multiple whitespace characters with a single space
+            if(text == null)
+                return string.Empty;
             return Regex.Replace(text, @"\s+", " ").Trim();
         }
 
