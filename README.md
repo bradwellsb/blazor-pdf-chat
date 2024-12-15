@@ -7,9 +7,9 @@ This project showcases:
 - **Vectorization**: Convert text chunks into vectors for efficient similarity search.
 - **Vector Storage**: Store these vectors in a vector database.
 - **Query Handling**: When a user asks a question:
-  - The query is vectorized.
-  - A search for the nearest neighbors in the vector database is performed using cosine similarity.
-  - The query prompt is augmented with relevant document snippets to provide accurate responses.
+  1. The query is vectorized.
+  2. A search for the nearest neighbor matches in the vector database is performed using cosine similarity.
+  3. The query prompt is augmented with relevant document snippets to provide accurate responses.
 
 ![Blazor PDF Chat screenshot](https://github.com/user-attachments/assets/397e65cb-45b8-4706-b3b2-f30c88fb6bf6)
 
